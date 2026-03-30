@@ -14,8 +14,8 @@ Continuous mobile threat monitoring using open-source tools on a single VPS. Sur
 │  Phone   │ ─────────────────► │  Debian VPS                              │
 │(any OS)  │   all traffic      │                                          │
 └──────────┘   tunneled         │  ┌──────────┐    ┌───────────────────┐   │
-                                │  │ Suricata  │───►│ pirogue-triage    │   │
-                                │  │ IDS + DPI │    │ daemon            │   │
+                                │  │ Suricata │───►│ pirogue-triage    │   │
+                                │  │ IDS + DPI│    │ daemon            │   │
                                 │  └──────────┘    │                   │   │
                                 │                  │  eve.json watcher │   │
                                 │  ┌──────────┐    │  deduplication    │   │
