@@ -1,0 +1,11 @@
+.direnv/
+result
+result-*
+__pycache__/
+*.pyc
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+.DS_Store

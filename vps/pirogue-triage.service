@@ -1,5 +1,10 @@
 # /etc/systemd/system/pirogue-triage.service
-# Deploy on the VPS alongside PiRogue
+#
+# Deploy on the VPS alongside PiRogue.
+#
+# IMPORTANT: The User must match whoever linked signal-cli.
+# If you ran `signal-cli link` as the pirogue user, set User=pirogue.
+# The signal-cli data lives in that user's ~/.local/share/signal-cli/
 #
 # Install:
 #   sudo cp pirogue-triage.service /etc/systemd/system/
@@ -15,8 +20,9 @@ Requires=suricata.service
 
 [Service]
 Type=simple
-User=pirogue-triage
-Group=pirogue-triage
+# IMPORTANT: Must match the user who linked signal-cli
+User=pirogue
+Group=pirogue
 
 ExecStart=/usr/bin/python3 /opt/pirogue-triage/pirogue-triage-daemon.py \
     --config /etc/pirogue-triage/config.toml
@@ -27,16 +33,9 @@ RestartSec=10
 # Env file for API key — keeps it out of the config TOML
 EnvironmentFile=-/etc/pirogue-triage/env
 
-# Hardening
+# Minimal hardening — kept simple to avoid namespace/permission issues
+# with signal-cli's home directory data store
 NoNewPrivileges=yes
-ProtectSystem=strict
-ProtectHome=yes
-PrivateTmp=yes
-ReadWritePaths=/var/log/pirogue-triage /var/lib/pirogue-triage
-ReadOnlyPaths=/var/log/suricata
-
-# signal-cli needs access to its data dir
-ReadWritePaths=/home/pirogue-triage/.local/share/signal-cli
 
 [Install]
 WantedBy=multi-user.target

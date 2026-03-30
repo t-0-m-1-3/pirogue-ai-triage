@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# demo-trigger.sh — Fire demo Suricata rules against isitransomware.org
+# demo-trigger.sh — Fire demo Suricata rules against your-demo-domain.com
 # =============================================================================
 #
 # Usage:
@@ -16,8 +16,8 @@
 
 set -euo pipefail
 
-DEMO_DOMAIN="isitransomware.org"
-STALKER_DOMAIN="tracker.isitransomware.org"
+DEMO_DOMAIN="your-demo-domain.com"
+STALKER_DOMAIN="tracker.your-demo-domain.com"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'

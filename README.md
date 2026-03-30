@@ -43,35 +43,75 @@ Presented at [Conference Name] 2026 by [Your Name].
 - A **phone** with the WireGuard app (iOS or Android)
 - A **Signal account** for receiving alerts
 - An **Anthropic API key** for Claude-powered triage ([console.anthropic.com](https://console.anthropic.com))
+- A **domain** you control, pointed at the VPS via Cloudflare (for the demo site)
 
 ## Repository Structure
 
 ```
 pirogue-ai-triage/
-├── CLAUDE.md                  # Agent instructions (deploy to VPS project root)
-├── README.md                  # This file
+├── CLAUDE.md                      # Claude agent instructions for VPS
+├── README.md                      # This file
+├── .envrc                         # direnv config (auto-loads nix shell + secrets)
+├── .gitignore
 │
-├── agent-docs/                # Reference docs for the Claude agent
-│   ├── SKILL.md               # Agent role, triage framework, behavioral rules
-│   ├── EVE_JSON_REFERENCE.md  # Suricata event field reference
-│   ├── MOBILE_THREAT_INTEL.md # Spyware families, stalkerware, IOC feeds
+├── agent-docs/                    # Reference docs for the Claude agent
+│   ├── SKILL.md                   # Agent role, triage framework, behavioral rules
+│   ├── EVE_JSON_REFERENCE.md      # Suricata event field reference
+│   ├── MOBILE_THREAT_INTEL.md     # Spyware families, stalkerware, IOC feeds
 │   ├── MITRE_MOBILE_REFERENCE.md  # ATT&CK Mobile network-detectable techniques
-│   ├── TRIAGE_PLAYBOOKS.md    # Step-by-step analysis for each alert category
-│   ├── VPS_OPERATIONS.md      # Commands, paths, jq queries, service management
-│   └── JA3_REFERENCE.md       # JA3/JA4 fingerprint analysis and known hashes
+│   ├── TRIAGE_PLAYBOOKS.md        # Step-by-step analysis for alert categories
+│   ├── VPS_OPERATIONS.md          # Commands, paths, jq queries
+│   └── JA3_REFERENCE.md           # TLS fingerprint analysis and known hashes
 │
-├── vps/                       # Deploy on the VPS
-│   ├── deploy-vps.sh          # One-shot installer script
+├── vps/                           # Deploy on the VPS
+│   ├── deploy-vps.sh              # One-shot installer script
 │   ├── pirogue-triage-daemon.py   # Main triage daemon
-│   ├── config.toml            # Daemon configuration
-│   ├── pirogue-triage.service # systemd unit file
-│   └── demo-rules.rules      # Suricata rules for demo/testing
+│   ├── config.toml                # Daemon configuration
+│   ├── pirogue-triage.service     # systemd unit file
+│   └── demo-rules.rules          # Suricata rules for demo/testing
 │
-└── laptop/                    # Presenter tools (NixOS)
-    ├── shell.nix              # Nix shell with all demo dependencies
-    ├── demo-stage.sh          # tmux 4-pane stage layout
-    └── demo-trigger.sh        # Fire test alerts through the tunnel
+├── demo-site/                     # Demo domain site + infrastructure
+│   ├── CLOUDFLARE_SETUP.md        # Full Cloudflare + DNS + SSL setup guide
+│   ├── SURICATA_CONFIG.md         # Suricata configuration changes required
+│   ├── setup-demo-user.sh         # Create demo-site service user
+│   ├── your-demo-domain.conf      # nginx config (rename to your domain)
+│   └── www/
+│       └── index.html             # Landing page
+│
+└── laptop/                        # Presenter tools (NixOS)
+    ├── shell.nix                  # Nix shell with all demo dependencies
+    ├── demo-stage.sh              # tmux 4-pane stage layout
+    ├── demo-trigger.sh            # Fire test alerts through the tunnel
+    └── sops-direnv-setup.md       # sops-nix + direnv setup guide
 ```
+
+---
+
+## ⚠️ Customize Before Deploying
+
+This repo ships with placeholder values that **must** be changed before use. Search-and-replace these across all files:
+
+| Placeholder | Replace with | Files affected |
+|-------------|-------------|----------------|
+| `your-demo-domain.com` | Your actual domain (e.g., `isitransomware.org`) | `vps/demo-rules.rules`, `demo-site/*`, `laptop/demo-trigger.sh` |
+| `YOUR_VPS_IP` | Your VPS public IP address | `demo-site/your-demo-domain.conf` |
+| `10.8.0.1` | Your WireGuard gateway IP (if different) | `demo-site/your-demo-domain.conf`, `vps/demo-rules.rules` |
+| `+1YOURNUMBER` | Your Signal number in international format | `vps/config.toml`, any manual commands |
+| `+1XXXXXXXXXX` | Signal recipient number | `vps/config.toml` |
+| `sk-ant-...` | Your Anthropic API key | `/etc/pirogue-triage/env` on VPS |
+| `[you]` | Your GitHub username | `README.md`, `demo-site/www/index.html`, `vps/pirogue-triage.service` |
+| `[Your Name]` | Your name | `README.md` |
+| `[Conference Name]` | Conference name | `README.md` |
+| `your-demo-domain.conf` | Rename to match your domain | `demo-site/` |
+
+Quick one-liner to replace the domain everywhere:
+
+```bash
+find . -type f -not -path "./.git/*" -exec sed -i 's/your-demo-domain\.com/youractualdomain.com/g' {} +
+mv demo-site/your-demo-domain.conf demo-site/youractualdomain.conf
+```
+
+---
 
 ## Quick Start
 
@@ -156,7 +196,7 @@ sudo cp demo-rules.rules /etc/suricata/rules/
 sudo suricatasc -c reload-rules
 
 # Fire a test alert (from the phone or through the tunnel)
-# Option A: Open a browser on the phone and go to malware-demo.yourdomain.com
+# Option A: Open a browser on the phone and go to your-demo-domain.com
 # Option B: Run the trigger script through the tunnel
 ./demo-trigger.sh dns
 ```
@@ -169,13 +209,13 @@ Five custom Suricata rules (SID 9999901–9999905) are included for testing and 
 
 | SID | Trigger | How to fire it |
 |-----|---------|---------------|
-| 9999901 | DNS C2 domain | Open browser → navigate to your demo domain |
-| 9999902 | Stalkerware domain | Same, second demo domain |
-| 9999903 | JA3 fingerprint | `curl --tlsv1.2 --ciphers ECDHE-RSA-AES128-GCM-SHA256 https://demo-domain/beacon` |
-| 9999904 | HTTP beacon UA | `curl -A "Mozilla/5.0 (compatible; BabyShark/2.0)" http://demo-domain/gate.php` |
-| 9999905 | DNS TXT exfil | `nslookup -type=TXT exfil-test.demo-domain` |
+| 9999901 | DNS C2 domain | Open browser → navigate to `your-demo-domain.com` |
+| 9999902 | Stalkerware domain | Browse to `tracker.your-demo-domain.com` |
+| 9999903 | JA3 fingerprint | `curl --tlsv1.2 --ciphers ECDHE-RSA-AES128-GCM-SHA256 `curl` with forced cipher through WireGuard (see rule comments)` |
+| 9999904 | HTTP beacon UA | `curl -A "Mozilla/5.0 (compatible; BabyShark/2.0)" `curl -A "BabyShark/2.0" http://your-demo-domain.com/gate.php`` |
+| 9999905 | DNS TXT exfil | ``dig TXT exfil-test.your-demo-domain.com`` |
 
-**Before using:** Replace `malware-demo.yourdomain.com` in `demo-rules.rules` with a domain you control. For rule 9999903, capture the actual JA3 hash from your curl command first (check eve.json for the `tls` event).
+**Before using:** See the **Customize Before Deploying** section above for all values you need to change.
 
 ## Claude Agent Docs
 

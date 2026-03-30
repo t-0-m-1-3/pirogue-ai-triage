@@ -35,9 +35,9 @@ set -euo pipefail
 # CONFIGURATION — Edit these before the talk
 # ---------------------------------------------------------------------------
 
-VPS_HOST="pirogue.ofpanalytics.com"
-VPS_USER="pirogue"                             # or your sudo user
-SSH_KEY="$HOME/.ssh/id_ed25519_sk"             # dedicated key for demo
+VPS_HOST="your-vps-hostname-or-ip"
+VPS_USER="root"                             # or your sudo user
+SSH_KEY="$HOME/.ssh/id_pirogue"             # dedicated key for demo
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=10"
 
 EVE_JSON="/var/log/suricata/eve.json"
