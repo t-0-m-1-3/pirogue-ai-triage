@@ -4,7 +4,6 @@
 
 Continuous mobile threat monitoring using open-source tools on a single VPS. Suricata IDS detects threats in phone traffic tunneled through WireGuard, a Claude agent triages and enriches alerts in real time, and signal-cli delivers encrypted notifications to your phone via Signal.
 
-Presented at [Conference Name] 2026 by [Your Name].
 
 ---
 
@@ -101,7 +100,6 @@ This repo ships with placeholder values that **must** be changed before use. Sea
 | `sk-ant-...` | Your Anthropic API key | `/etc/pirogue-triage/env` on VPS |
 | `[you]` | Your GitHub username | `README.md`, `demo-site/www/index.html`, `vps/pirogue-triage.service` |
 | `[Your Name]` | Your name | `README.md` |
-| `[Conference Name]` | Conference name | `README.md` |
 | `your-demo-domain.conf` | Rename to match your domain | `demo-site/` |
 
 Quick one-liner to replace the domain everywhere:
