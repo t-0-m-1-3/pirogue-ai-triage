@@ -1,0 +1,42 @@
+# /etc/systemd/system/pirogue-triage.service
+# Deploy on the VPS alongside PiRogue
+#
+# Install:
+#   sudo cp pirogue-triage.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now pirogue-triage
+
+[Unit]
+Description=PiRogue AI Triage Daemon
+Documentation=https://github.com/[you]/pirogue-ai-triage
+After=network-online.target suricata.service
+Wants=network-online.target
+Requires=suricata.service
+
+[Service]
+Type=simple
+User=pirogue-triage
+Group=pirogue-triage
+
+ExecStart=/usr/bin/python3 /opt/pirogue-triage/pirogue-triage-daemon.py \
+    --config /etc/pirogue-triage/config.toml
+
+Restart=on-failure
+RestartSec=10
+
+# Env file for API key — keeps it out of the config TOML
+EnvironmentFile=-/etc/pirogue-triage/env
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/log/pirogue-triage /var/lib/pirogue-triage
+ReadOnlyPaths=/var/log/suricata
+
+# signal-cli needs access to its data dir
+ReadWritePaths=/home/pirogue-triage/.local/share/signal-cli
+
+[Install]
+WantedBy=multi-user.target

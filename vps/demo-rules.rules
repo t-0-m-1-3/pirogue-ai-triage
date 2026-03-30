@@ -1,0 +1,120 @@
+# =============================================================================
+# PiRogue Conference Demo - Custom Suricata Rules
+# Domain: isitransomware.org
+# =============================================================================
+# Deploy to: /etc/suricata/rules/demo-rules.rules
+# Add to suricata.yaml under rule-files:
+#   - demo-rules.rules
+# Reload: sudo suricatasc -c reload-rules
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# DEMO RULE 1: DNS C2 Domain (Primary Demo - most reliable)
+# ---------------------------------------------------------------------------
+# Fires when the monitored phone resolves isitransomware.org.
+# Trigger: Open a browser on the phone and navigate to the domain.
+
+alert dns any any -> any any ( \
+    msg:"PIROGUE-DEMO [HIGH] Known C2 Domain Contacted - APT Simulation"; \
+    dns.query; content:"isitransomware.org"; nocase; \
+    classtype:trojan-activity; \
+    metadata:deployment demo, severity high, confidence high, \
+             mitre_tactic command-and-control, mitre_technique T1071.004; \
+    sid:9999901; rev:2; )
+
+# ---------------------------------------------------------------------------
+# DEMO RULE 2: DNS IOC Trigger - Stalkerware subdomain
+# ---------------------------------------------------------------------------
+# Fires on the tracker subdomain specifically.
+# Trigger: Navigate to tracker.isitransomware.org on the phone.
+
+alert dns any any -> any any ( \
+    msg:"PIROGUE-DEMO [HIGH] Stalkerware Domain Resolution Detected"; \
+    dns.query; content:"tracker.isitransomware.org"; nocase; \
+    classtype:trojan-activity; \
+    metadata:deployment demo, severity high, confidence high, \
+             mitre_tactic collection, mitre_technique T1429; \
+    sid:9999902; rev:2; )
+
+# ---------------------------------------------------------------------------
+# DEMO RULE 3: JA3 Fingerprint Match (Secondary Demo - shows DPI)
+# ---------------------------------------------------------------------------
+# Fires on a specific JA3 hash. To trigger reliably:
+#
+#   curl --tlsv1.2 --tls-max 1.2 \
+#        --ciphers ECDHE-RSA-AES128-GCM-SHA256 \
+#        https://isitransomware.org/beacon
+#
+# IMPORTANT: Capture the actual JA3 hash first:
+#   1. Run the curl command above through WireGuard
+#   2. Check eve.json: jq 'select(.event_type=="tls")' eve.json | tail -20
+#   3. Copy the ja3.hash value
+#   4. Replace the placeholder hash below
+#
+# Placeholder hash — MUST be replaced with your actual observed hash.
+
+alert tls any any -> any any ( \
+    msg:"PIROGUE-DEMO [CRITICAL] TLS Client Fingerprint Matches Known Implant"; \
+    ja3.hash; content:"REPLACE_WITH_ACTUAL_JA3_HASH"; \
+    classtype:trojan-activity; \
+    metadata:deployment demo, severity critical, confidence medium, \
+             mitre_tactic command-and-control, mitre_technique T1573.002; \
+    sid:9999903; rev:2; )
+
+# ---------------------------------------------------------------------------
+# DEMO RULE 4: HTTP Beacon Pattern (Bonus - if time allows)
+# ---------------------------------------------------------------------------
+# Fires on a specific User-Agent string simulating a C2 beacon callback.
+# Trigger from Termux or laptop (must go over HTTP, not HTTPS):
+#
+#   curl -A "Mozilla/5.0 (compatible; BabyShark/2.0)" \
+#        http://isitransomware.org/gate.php
+#
+# Uses HTTP (port 80) so Suricata can inspect the User-Agent without MITM.
+# The nginx config serves this endpoint on both 80 and 443.
+
+alert http any any -> any any ( \
+    msg:"PIROGUE-DEMO [CRITICAL] C2 Beacon Callback - Suspicious User-Agent"; \
+    flow:to_server,established; \
+    http.user_agent; content:"BabyShark"; \
+    classtype:trojan-activity; \
+    metadata:deployment demo, severity critical, confidence high, \
+             mitre_tactic command-and-control, mitre_technique T1071.001; \
+    sid:9999904; rev:2; )
+
+# ---------------------------------------------------------------------------
+# DEMO RULE 5: Data Exfiltration Simulation (Bonus)
+# ---------------------------------------------------------------------------
+# Fires on DNS TXT query to the exfil subdomain.
+# Trigger from Termux or laptop:
+#
+#   nslookup -type=TXT exfil-test.isitransomware.org
+#   # or
+#   dig TXT exfil-test.isitransomware.org
+#
+
+alert dns any any -> any any ( \
+    msg:"PIROGUE-DEMO [HIGH] DNS TXT Query - Possible Data Exfiltration Channel"; \
+    dns.query; content:"exfil-test"; \
+    dns.query; content:"isitransomware.org"; \
+    classtype:bad-unknown; \
+    metadata:deployment demo, severity high, confidence medium, \
+             mitre_tactic exfiltration, mitre_technique T1048.003; \
+    sid:9999905; rev:2; )
+
+
+# =============================================================================
+# PRE-TALK CHECKLIST
+# =============================================================================
+# 1. Verify isitransomware.org resolves to your VPS (dig isitransomware.org)
+# 2. Verify nginx is serving: curl -I http://isitransomware.org/health
+# 3. Deploy these rules and reload Suricata
+# 4. Connect test phone via WireGuard
+# 5. Fire each trigger and verify alerts appear in eve.json:
+#      tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="alert")'
+# 6. Capture the actual JA3 hash and update rule 9999903
+# 7. Confirm signal-cli sends notifications for each alert
+# 8. Time the full chain: trigger → alert → triage → Signal notification
+#    Target: under 15 seconds end-to-end
+# 9. Record a backup video of the full demo sequence
+# =============================================================================

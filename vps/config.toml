@@ -1,0 +1,37 @@
+# /etc/pirogue-triage/config.toml
+# PiRogue AI Triage Daemon Configuration
+# =======================================
+
+[paths]
+eve_json_path = "/var/log/suricata/eve.json"
+log_file      = "/var/log/pirogue-triage/triage.log"
+state_dir     = "/var/lib/pirogue-triage"
+
+[signal]
+# Your Signal number — the one you linked with signal-cli
+signal_account    = "+1XXXXXXXXXX"
+
+# Who receives alerts — can be the same number or a group of recipients
+signal_recipients = ["+1XXXXXXXXXX"]
+
+[claude]
+# API key — can also be set via ANTHROPIC_API_KEY env var
+# anthropic_api_key = "sk-ant-..."
+anthropic_model     = "claude-sonnet-4-20250514"
+anthropic_max_tokens = 512
+
+[triage]
+# Suppress duplicate alerts for the same SID+source IP within this window
+dedup_window_seconds = 300
+
+# Max alerts per minute sent through the pipeline (prevents cost blowup)
+max_alerts_per_minute = 10
+
+# Time to wait for additional alerts before processing a batch
+batch_window_seconds = 2.0
+
+# Set to false to send raw Suricata alerts without AI enrichment
+enable_ai_triage = true
+
+# Extra verbose logging — turn on for live demos
+demo_mode = false

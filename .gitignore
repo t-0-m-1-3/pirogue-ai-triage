@@ -1,0 +1,21 @@
+# direnv cache (contains evaluated nix expressions, not secrets, but large)
+.direnv/
+
+# Nix build artifacts
+result
+result-*
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
