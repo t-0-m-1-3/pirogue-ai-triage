@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is It Ransomware?</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0a0e17;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 640px;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            color: #00d4aa;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        h1 span {
+            color: #00d4aa;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .answer-box {
+            background: #131b2e;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .answer {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .answer.no { color: #22c55e; }
+
+        .answer-detail {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .demo-notice {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .demo-notice h3 {
+            color: #f59e0b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-notice p {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .talk-info {
+            background: #131b2e;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .talk-info h3 {
+            color: #00d4aa;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .talk-info p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .talk-info a {
+            color: #00d4aa;
+            text-decoration: none;
+        }
+
+        .talk-info a:hover {
+            text-decoration: underline;
+        }
+
+        .endpoints {
+            text-align: left;
+            background: #131b2e;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .endpoints h3 {
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            margin-bottom: 0.6rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.8rem;
+        }
+
+        .endpoint .method {
+            color: #3b82f6;
+            font-weight: 600;
+            min-width: 2.5rem;
+        }
+
+        .endpoint .path {
+            color: #00d4aa;
+        }
+
+        .endpoint .desc {
+            color: #64748b;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin-left: auto;
+        }
+
+        footer {
+            color: #475569;
+            font-size: 0.75rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="badge">Security Research Demo</div>
+
+        <h1>Is It <span>Ransomware</span>?</h1>
+        <p class="subtitle">
+            You visited this domain and your IDS flagged it.<br>
+            That's the point.
+        </p>
+
+        <div class="answer-box">
+            <p class="answer no">No, this is not ransomware.</p>
+            <p class="answer-detail">
+                This is a controlled demonstration domain used for security
+                conference talks on mobile threat detection. If your IDS alerted
+                on a connection to this domain, your detection pipeline is
+                working correctly.
+            </p>
+        </div>
+
+        <div class="demo-notice">
+            <h3>&#x26A0; Conference Demo Domain</h3>
+            <p>
+                This domain hosts simulated C2 endpoints used to trigger
+                Suricata IDS rules during a live conference demo. The endpoints
+                return static JSON responses and collect no data. All traffic to
+                this domain is benign.
+            </p>
+        </div>
+
+        <div class="talk-info">
+            <h3>Hunting in Your Pocket</h3>
+            <p>
+                AI-Augmented Mobile Threat Detection with PiRogue Tool Suite.
+                <br><br>
+                This domain is part of the live demo for this talk, demonstrating
+                how PiRogue + Suricata + a Claude AI agent can detect and triage
+                mobile threats in real time, with encrypted alerting via Signal.
+                <br><br>
+                Source: <a href="https://github.com/[you]/pirogue-ai-triage">github.com/[you]/pirogue-ai-triage</a>
+            </p>
+        </div>
+
+        <div class="endpoints">
+            <h3>Demo Endpoints</h3>
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="path">/</span>
+                <span class="desc">This page</span>
+            </div>
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="path">/beacon</span>
+                <span class="desc">Simulated C2 beacon</span>
+            </div>
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="path">/gate.php</span>
+                <span class="desc">Simulated C2 gate</span>
+            </div>
+            <div class="endpoint">
+                <span class="method">POST</span>
+                <span class="path">/upload</span>
+                <span class="desc">Simulated exfil endpoint</span>
+            </div>
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="path">/health</span>
+                <span class="desc">Health check</span>
+            </div>
+        </div>
+
+        <footer>
+            isitransomware.org &mdash; A demo domain. Not malware. Your IDS is working.
+        </footer>
+    </div>
+</body>
+</html>
